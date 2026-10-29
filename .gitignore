@@ -1,0 +1,6 @@
+# Entorn i fitxers temporals de Python
+.venv/
+__pycache__/
+# Fitxers de treball que no s'han de pujar (es poden regenerar)
+data/
+logs/
