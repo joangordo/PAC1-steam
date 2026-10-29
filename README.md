@@ -2,9 +2,9 @@
 
 Pràctica 1 de *Tipologia i cicle de vida de les dades* (Màster en Ciència de Dades, UOC).
 
-**Integrants:** Joan Gordó Guardia · [Nom i cognoms del company]
+**Integrants:** Joan Gordó Guardia · Ferran Rincon Puente
 
-**DOI del dataset a Zenodo:** https://doi.org/10.5281/zenodo.[XXXXXXX]
+**DOI del dataset a Zenodo:** https://
 
 ## Què fa aquest projecte
 
