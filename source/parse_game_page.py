@@ -163,12 +163,17 @@ def parse_identity(soup, row: dict) -> None:
 
 def parse_purchase(soup, row: dict) -> None:
     # Opcions de compra que NO són lots (els lots tenen la classe dynamic_bundle_description)
+    # Tampoc comptem la demo (classe demo_above_purchase) no té preu i sovint va primer
     options = [g for g in soup.select(".game_area_purchase_game")
-               if not g.find_parent(class_="dynamic_bundle_description")]
+               if not g.find_parent(class_="dynamic_bundle_description")
+               and "demo_above_purchase" not in g.get("class", [])]
     row["n_purchase_options"] = len(options)
     row["n_bundles"] = len(soup.select(".game_area_purchase_game_wrapper.dynamic_bundle_description"))
 
-    main = options[0] if options else None
+    # L'opció principal és la primera amb preu: abans hi pot haver blocs sense preu
+    # (passes d'amic, proves tancades...). Si cap en té, ens quedem amb la primera.
+    priced = [g for g in options if g.select_one(".discount_final_price, .game_purchase_price")]
+    main = (priced or options or [None])[0]
     wrapper = main.find_parent(class_="game_area_purchase_game_wrapper") if main else None
     scope = wrapper or main
 
@@ -184,6 +189,9 @@ def parse_purchase(soup, row: dict) -> None:
     row["sale_end_text"] = clean(countdown.get_text()) if countdown else ""
     price_low = row["price_final"].lower()
     row["is_free"] = any(w in price_low for w in ("gratuito", "free", "jugar"))
+    # Alguns jocs gratuïts no mostren preu: només el bloc "Jugar a «...»"
+    if not row["price_final"] and txt("h1, h2.title").lower().startswith("jugar a"):
+        row["is_free"] = True
 
     # DLC: "Ver todos (N)" dona el total; si no hi és, comptem les files visibles
     dlc = soup.select_one("#gameAreaDLCSection")
@@ -261,6 +269,16 @@ def parse_content(soup, row: dict) -> None:
     row["mature_content_text"] = clean(cd.get_text(" ")) if cd else ""
 
 
+def store_category_ids(soup) -> list[int]:
+    """Ids de característiques del JSON de la pàgina: el mando i la RV només surten aquí."""
+    cache = soup.select_one("[data-featuretarget='apppage-store-browse-cache']")
+    try:
+        categories = json.loads(cache["data-props"])["rgPayloads"][0]["rgStoreItems"][0]["categories"]
+    except (TypeError, KeyError, IndexError, ValueError):
+        return []
+    return [fid for ids in categories.values() for fid in ids]
+
+
 def parse_features(soup, row: dict) -> None:
     names, ids = [], []
     for a in soup.select("a.game_area_details_specs_ctn"):
@@ -271,6 +289,7 @@ def parse_features(soup, row: dict) -> None:
         if m:
             ids.append(int(m.group(1)))
     row.update(features=join(names), feature_ids=join(str(i) for i in ids), n_features=len(names))
+    ids += store_category_ids(soup)
     for fid, col in FEATURE_IDS.items():
         row[col] = fid in ids
 

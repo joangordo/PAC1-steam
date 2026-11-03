@@ -1,6 +1,34 @@
-# Entorn i fitxers temporals de Python
+# ------------------------------------------------------------------
+# Entorn virtual i fitxers temporals de Python
+# ------------------------------------------------------------------
 .venv/
+venv/
+env/
 __pycache__/
-# Fitxers de treball que no s'han de pujar (es poden regenerar)
+*.pyc
+
+# ------------------------------------------------------------------
+# Fitxers de treball que es generen en executar el codi
+# ------------------------------------------------------------------
+# data/ conté els enllaços de la Fase 1, la caché HTML de les fitxes (uns 3 GB)
+# i la multimèdia de la Fase 3 (imatges i tràilers amb drets d'autor).
+# No s'ha de pujar mai al repositori.
 data/
 logs/
+
+# ------------------------------------------------------------------
+# Fitxers del sistema operatiu i dels editors
+# ------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+.ipynb_checkpoints/
+
+# ------------------------------------------------------------------
+# Scripts i còpies personals
+# ------------------------------------------------------------------
+*.bat
+*.bak
+*_backup.*
